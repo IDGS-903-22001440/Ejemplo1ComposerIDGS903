@@ -38,44 +38,99 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+private val tarjetas: List<PersonajeTarjeta> = listOf(
+    PersonajeTarjeta("Bulma", "Bulma es la protagonista femenina de la serie manga Dragon Ball y sus adaptaciones al anime Dragon Ball, Dragon Ball Z, Dragon Ball Super y Dragon Ball GT."),
+    PersonajeTarjeta("Launch", "Personaje que sufre cambios de personalidad al estornudar. Es uno de los personajes principales del manga Dragon Ball y su anime homónimo"),
+    PersonajeTarjeta("Android 18", "Es la hermana melliza del Androide Número 17 y una androide creada a partir de una base humana por el Dr. Gero con el único fin de destruir a Goku."),
+    PersonajeTarjeta("Marcarita ", "Marcarita es el ángel guía del Universo 11, sirviente y maestra de artes marciales del Dios de la Destrucción Vermoud."),
+    PersonajeTarjeta("Majin Buu", "También conocido como Boo original, es la forma original y pura de Majin-Boo, y la última forma de Boo que aparece en Dragon Ball Z."),
+    PersonajeTarjeta("Kaio del norte (Kaito)", "Se trata del dios encargado de administrar las Galaxias del Norte, el cuadrante boreal del Universo 7 y supervisar a los dioses de los planetas de dicho sector (como es el caso de Kami en la Tierra)"),
+    PersonajeTarjeta("Freezer", "Freezer es el tirano espacial y el principal antagonista de la saga de Freezer.")
+)
+
+data class PersonajeTarjeta(val title: String, val body: String)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        //enableEdgeToEdge()
         setContent {
-            Tarjeta()
+            Ejemplo1ComposerIDGS903Theme {
+                Tarjeta(tarjetas)
+            }
         }
     }
 
     @Composable
-    fun Tarjeta(){
-        Row {
-            ImagenHeroe()
-            Personaje()
+    fun Tarjeta(personajes: List<PersonajeTarjeta>){
+        LazyColumn {
+            items(personajes){ personaje ->
+                MyPersonajes(personaje)
+            }
+        }
+    }
+
+    @Composable
+    fun MyPersonajes(personaje: PersonajeTarjeta) {
+        Card (
+            modifier = Modifier.padding(16.dp)
+                .fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ){
+
+        }
+        Row (
+            modifier = Modifier.padding(8.dp)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            ImagenHeroe(personaje.title)
+            Personajes(personaje)
         }
     }
 
 
     @Composable
-    fun Personaje(){
+    fun Personaje(name: String, color: Color, style: TextStyle, lines:Int=Int.MAX_VALUE){
         Column {
-            Text("Gohan")
-            Text("Son Goku")
-            Text("Chi Chi")
+            Text(text = name, color = color, style = style, maxLines = lines)
         }
     }
 
     @Composable
-    fun ImagenHeroe(){
+    fun Personajes(personaje: PersonajeTarjeta){
+        var expanded by remember { mutableStateOf(false) }
+        Column (
+            modifier = Modifier.padding(start = 8.dp).clickable {
+                expanded = !expanded
+            }
+        ){
+            Personaje(personaje.title,
+                MaterialTheme.colorScheme.primary,
+                MaterialTheme.typography.headlineMedium)
+
+            Personaje(personaje.body,
+                MaterialTheme.colorScheme.onBackground,
+                MaterialTheme.typography.bodyLarge,
+                if (expanded) Int.MAX_VALUE else 1)
+        }
+    }
+
+    @Composable
+    fun ImagenHeroe(imageName: String){
+        val context = LocalContext.current
+        val ImageResId = remember (imageName) {
+            context.resources.getIdentifier(imageName.lowercase(),"drawable", context.packageName)
+        }
         Image(
-            painter = painterResource(R.drawable.chichi),
+            painter = painterResource(id = ImageResId),
             contentDescription = "Chi Chi",
             modifier = Modifier
                 .padding(16.dp)
                 .size(100.dp)
                 .clip(CircleShape)
-                .background(Color.Gray)
+                .background(MaterialTheme.colorScheme.primary)
 
         )
     }
@@ -83,6 +138,6 @@ class MainActivity : ComponentActivity() {
     @Preview
     @Composable
     fun GreetingPreview(){
-        Tarjeta()
+        Tarjeta(tarjetas)
     }
 }
